@@ -1,0 +1,5 @@
+#ifndef GRADIENT_INCLUDED
+#define GRADIENT_INCLUDED
+
+
+#endif
