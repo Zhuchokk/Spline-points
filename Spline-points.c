@@ -7,5 +7,6 @@
 
 int main()
 {
-
+	Spline *sp1 = Constructor("Spline1.txt", 1);
+	Spline *sp2 = Constructor("Spline2.txt", 1);
 }
