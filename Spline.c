@@ -8,9 +8,8 @@
 
 
 //Reads current file stream and returnes nearest double number, do not forget to add EOF to the file
-double parse_number(FILE* fp, char end_symbol) {
+double parse_number(FILE* fp, char* number, char end_symbol) {
 	char ch;
-	char number[10];
 	int i = 0;
 
 	while ((ch = fgetc(fp)) != end_symbol) {
@@ -21,14 +20,15 @@ double parse_number(FILE* fp, char end_symbol) {
 	return atof(number);
 }
 
-//Creates quadratic spline, using ax^2 + bx + c = y where a - given const
-Spline* Constructor(char* filename, const double a) {
+//Creates cubic spline, using ax^3 + bx^2 + cx + d = y where a, b - given const
+Spline* Constructor(char* filename, const double a, const double b) {
 	FILE* fp;
 	Spline* nw = (Spline*)malloc(sizeof(Spline));
+	char number[10];
 
 	fp = fopen(filename, "r");
 
-	nw->n = parse_number(fp, '\n');
+	nw->n = parse_number(fp, number,'\n');
 
 	//Memory allocation
 	nw->points = (double**)malloc(nw->n * sizeof(double*));
@@ -38,13 +38,13 @@ Spline* Constructor(char* filename, const double a) {
 
 	nw->functions = (double**)malloc((nw->n - 1) * sizeof(double*));
 	for (int i = 0; i < nw->n - 1; i++) {
-		nw->functions[i] = (double*)malloc(3 * sizeof(double));
+		nw->functions[i] = (double*)malloc(4 * sizeof(double));
 	}
 
 	//Points parser
 	for (int i = 0; i < nw->n; i++) {
-		nw->points[i][0] = parse_number(fp, ' ');
-		nw->points[i][1] = parse_number(fp, '\n');
+		nw->points[i][0] = parse_number(fp,number, ' ');
+		nw->points[i][1] = parse_number(fp, number,'\n');
 	}
 
 	//Functions creation
@@ -61,15 +61,17 @@ Spline* Constructor(char* filename, const double a) {
 		else if(x1 == x2 && y1 == y2){
 			//the same points
 			nw->functions[i][0] = a; //a
-			nw->functions[i][1] = a; //b
-			nw->functions[i][2] = y1 - a * x1 * x1 - nw->functions[i][1] * x1; //c
+			nw->functions[i][1] = b; //b
+			nw->functions[i][2] = b; //c, every is suitable
+			nw->functions[i][3] = nw->functions[i][3] = y1 - a * x1 * x1 * x1 - b * x1 * x1 - nw->functions[i][2] * x1; //d
 			continue;
 
 		}
 
 		nw->functions[i][0] = a; //a
-		nw->functions[i][1] = (y2 - y1 + a * x1 * x1 - a * x2 * x2) / (x2 - x1); //b
-		nw->functions[i][2] = y1 - a * x1 * x1 - nw->functions[i][1] * x1; //c
+		nw->functions[i][1] = b; //b
+		nw->functions[i][2] = (y2 - a * x2 * x2 * x2 - b * x2 * x2 - y1 + a * x1 * x1 * x1 + b * x1 * x1) / (x2 - x1); //c
+		nw->functions[i][3] = y1 - a * x1 * x1 * x1 - b * x1 * x1 - nw->functions[i][2] * x1; //d
 	}
 	fclose(fp);
 	return nw;

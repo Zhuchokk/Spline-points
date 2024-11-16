@@ -11,10 +11,11 @@ typedef struct Spline {
 
 typedef struct Answer {
 	int type; //0 or 1; Point = 1, Distance = 0
-	double* point;
-	double distance;
+	int n; // number of points
+	double** point;
+	double distance; // min distance
 } Answer;
 
-Spline* Constructor(char* filename, const double a);
+Spline* Constructor(char* filename, const double a, const double b);
 
 #endif
