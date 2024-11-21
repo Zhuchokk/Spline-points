@@ -4,6 +4,7 @@
 #define EPS 0.00001
 
 typedef enum {POINT, DISTANCE} AnswerType;
+typedef enum {NEWTON, GRADIENT, QR} MethodType;
 
 typedef struct Spline {
 	int n;
