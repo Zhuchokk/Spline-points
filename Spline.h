@@ -3,6 +3,8 @@
 
 #define EPS 0.00001
 
+typedef enum {POINT, DISTANCE} AnswerType;
+
 typedef struct Spline {
 	int n;
 	double** points;
@@ -10,7 +12,7 @@ typedef struct Spline {
 } Spline;
 
 typedef struct Answer {
-	int type; //0 or 1; Point = 1, Distance = 0
+	AnswerType type; //POINT or DISTANCE
 	int n; // number of points
 	double** point;
 	double distance; // min distance
