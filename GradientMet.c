@@ -101,23 +101,26 @@ Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, 
 			}
 		}
 	}
-	double* p = &x;
-	double** pp = &p;
+	double** mass1 = (double**)calloc(1, sizeof(double*));
+	double mass2[2];
+	
+	
+	mass1[0][0] = distance;
+	double** pp = &mass1;
 	//printf("%lf\n %lf\n %lf\n %lf\n", x1, x2, x, distance); //not necessary for the function, but useful for tests
-	struct Answer* res = (Answer*)calloc(1, sizeof(Answer));
+	Answer* res = (Answer*)calloc(1, sizeof(Answer));
 	if (distance == 0) {
 		res->point = pp;
 	}
 	else {
 		res->distance = distance;
 	}
+	res->n = 1;
 
-	return &res;
+	return res;
 }
 
 #define GRADIENTMET 0
-	Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, double gx2) {
-	}
 #ifndef GRADIENTMET
 	int main() {
 		double f_test[4] = { 2, -8, 4, 8 };
