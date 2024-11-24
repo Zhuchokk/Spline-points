@@ -3,19 +3,19 @@
 
 #define ITERATIONS 10000000
 
-double func(double a, double b, double c, double d, double x) { //незамодуленная кубическая функция
+double func(double a, double b, double c, double d, double x) { //cubic function without a module
 	double ans;
 	ans = a * x * x * x + b * x * x + c * x + d;
 	return ans;
 }
 
-double derivative(double a, double b, double c, double x) { //незамодуленная производная
+double derivative(double a, double b, double c, double x) { //derivative without a module
 	double der;
 	der = 3 * a * x * x + 2 * b * x + c;
 	return der;
 }
 
-double ABS(double a) { //модуль числа
+double ABS(double a) { //the number module
 	if (a < 0) {
 		a = -a;
 	}
@@ -23,7 +23,7 @@ double ABS(double a) { //модуль числа
 }
 
 Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, double gx2) {
-	//f, g - массивы коэффициентов
+	//f, g - arrays of coefficients
 	double a_res, b_res, c_res, d_res, x1, x2, x;
 	int flag;
 	
@@ -32,7 +32,7 @@ Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, 
 	b_res = f[1] - g[1];
 	c_res = f[2] - g[2];
 	d_res = f[3] - g[3];
-	if (fx1 < gx1) { //находим пересечение интервалов
+	if (fx1 < gx1) { //find the intersection of the intervals
 		x1 = gx1;
 	}
 	else {
@@ -48,24 +48,24 @@ Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, 
 		distance = -1;
 	}
 	else {
-		if (x2 == x1) { //если интервалы имеют одну общую точку
+		if (x2 == x1) { //if the intervals have one common point
 			distance = func(a_res, b_res, c_res, d_res, x2);
 			ABS(distance);
 		}
 		else {
 			x = (x1 + x2) / 2;
 			double begin = func(a_res, b_res, c_res, d_res, x);
-			if (begin != 0) { //если сразу попали на корень, то ничего не делаем, и х идет в ответ
+			if (begin != 0) { //if the root was found immediately
 				if (begin < 0) {
 					flag = -1;
 				}
 				else {
 					flag = 1;
 				}
-				for (int j = 0; j < ITERATIONS; j++) { //реализация метода градиентного спуска
+				for (int j = 0; j < ITERATIONS; j++) { //implementation of the gradient descent method
 					double x_old = x;
 					x = x - EPS * flag * derivative(a_res, b_res, c_res, x);
-					if ((x <= x1) || (x >= x2)) { //если достигнут край интервала, записываем значение функции в соответствующую переменную
+					if ((x <= x1) || (x >= x2)) { //if the edge of the interval is reached, write the value of the function to the appropriate variable
 						double help1, help2;
 						help1 = func(a_res, b_res, c_res, d_res, x1);
 						help2 = func(a_res, b_res, c_res, d_res, x2);
@@ -81,12 +81,12 @@ Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, 
 						break;
 					}
 					else {
-						double help3 = func(a_res, b_res, c_res, d_res, x); //проверяем значение функции
+						double help3 = func(a_res, b_res, c_res, d_res, x); //checking the value of the function
 						if (help3 == 0) {
 							distance = x;
 							break;
 						}
-						else { //если функция на этом шаге меняет знак, меняем значение flag
+						else { //if the function changes the sign at this step, the flag value changes
 							double help_old = func(a_res, b_res, c_res, d_res, x_old);
 							if (help_old * help3 < 0) {
 								flag = -flag;
@@ -95,7 +95,7 @@ Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, 
 
 					}
 				}
-				if (distance == -1) { //если край интервала не был достигнут, а функция нигде не равна нулю
+				if (distance == -1) { //if the edge of the interval has not been reached, and the function is not zero anywhere
 					distance = ABS(func(a_res, b_res, c_res, d_res, x));
 				}
 			}
@@ -103,7 +103,7 @@ Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, 
 	}
 	double* p = &x;
 	double** pp = &p;
-	//printf("%lf\n %lf\n %lf\n %lf\n", x1, x2, x, distance); //костыль для тестов
+	//printf("%lf\n %lf\n %lf\n %lf\n", x1, x2, x, distance); //not necessary for the function, but useful for tests
 	struct Answer* res = (Answer*)calloc(1, sizeof(Answer));
 	if (distance == 0) {
 		res->point = pp;
