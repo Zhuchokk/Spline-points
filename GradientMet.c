@@ -45,6 +45,7 @@ Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, 
 		if (x2 == x1) { //if the intervals have one common point
 			distance = func(a_res, b_res, c_res, d_res, x2);
 			distance = ABS(distance);
+			x = x2;
 		}
 		else {
 			x = (x1 + x2) / 2;
