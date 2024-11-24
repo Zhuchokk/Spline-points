@@ -15,13 +15,6 @@ double derivative(double a, double b, double c, double x) { //derivative without
 	return der;
 }
 
-double ABS(double a) { //the number module
-	if (a < 0) {
-		a = -a;
-	}
-	return a;
-}
-
 Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, double gx2) {
 	//f, g - arrays of coefficients
 	double a_res, b_res, c_res, d_res, x1, x2, x;

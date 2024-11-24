@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define EPS 0.000001
 #define MIN(i, j) (((i) < (j)) ? (i) : (j))
 #define MAX(i, j) (((i) > (j)) ? (i) : (j))
 
@@ -58,11 +57,7 @@ double* findZeroPoints(double* arr) // нахождение точек, где �
 }
 
 
-double ABS(double x)  // модуль числа
-{
-    if (x < 0) return -x;
-    return x;
-}
+
 
 
 void sort(double* arr, int size)
@@ -181,13 +176,13 @@ Answer* NewtonSolve(double* f, double fx1, double fx2, double* g, double gx1, do
             dis_start = dis_end;
             dis_end = dis_start - (((fshx0[0] * dis_start * dis_start) + (fshx0[1] * dis_start) + fshx0[2]) / ((fshx0[0] * 2 * dis_start) + fshx0[1]));
         }
-        res->AnswerType = DISTANCE;
+        res->type = DISTANCE;
         res->distance = dis_end;      
     }
     else {
-        res->AnswerType = POINT;
+        res->type = POINT;
         res->n = count_points;
-        res->answer_points = answer_points;
+        res->point = answer_points;
     }
 
     free(size);

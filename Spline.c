@@ -76,3 +76,9 @@ Spline* Constructor(char* filename, const double a, const double b) {
 	fclose(fp);
 	return nw;
 }
+
+double ABS(double x)  // number module
+{
+	if (x < 0) return -x;
+	return x;
+}

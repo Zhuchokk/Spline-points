@@ -7,7 +7,7 @@ typedef enum {POINT, DISTANCE} AnswerType;
 typedef enum {NEWTON, GRADIENT, QR} MethodType;
 
 typedef struct Spline {
-	int n;
+	int n; // number of points
 	double** points;
 	double** functions;
 } Spline;
@@ -20,5 +20,7 @@ typedef struct Answer {
 } Answer;
 
 Spline* Constructor(char* filename, const double a, const double b);
+
+double ABS(double x);
 
 #endif

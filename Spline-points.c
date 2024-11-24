@@ -57,10 +57,10 @@ int main()
 
 	clock_t time = clock();
 
-	for (int i = 0; i < sp1->n; i++) {
-		for (int j = 0; j < sp2->n; j++) {
+	for (int i = 0; i < sp1->n - 1; i++) {
+		for (int j = 0; j < sp2->n - 1; j++) {
 			
-			Answer* ans = (*method)(sp1->functions[i], sp1->points[i][0], sp1->points[i + 1][0], sp2->functions[j], sp2->points[i][0], sp2->points[i + 1][0]);
+			Answer* ans = (*method)(sp1->functions[i], sp1->points[i][0], sp1->points[i + 1][0], sp2->functions[j], sp2->points[j][0], sp2->points[j + 1][0]);
 			if (ans->type == POINT) {
 				IsPointFound = 1;
 				for (int k = 0; k < ans->n; k++) {
@@ -84,13 +84,13 @@ int main()
 		}
 	}
 	if (!IsPointFound) {
-		printf("There are no spline intersections. Min distance is %lf", MinDistance);
+		printf("There are no spline intersections. Min distance is %lf\n", MinDistance);
 	}
 
 	time = time - clock();
 	double timeSpent = ((double)time) / CLOCKS_PER_SEC;
 
-	printf("Time spent: %lf", timeSpent);
+	printf("Time spent: %lf\n", timeSpent);
 
 	system("PAUSE");
 }
