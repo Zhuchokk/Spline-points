@@ -1,5 +1,6 @@
 #include"GradientMet.h"
 #include"Spline.h"
+#include<stdlib.h>
 
 #define ITERATIONS 10000000
 
@@ -43,7 +44,7 @@ Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, 
 	else {
 		if (x2 == x1) { //if the intervals have one common point
 			distance = func(a_res, b_res, c_res, d_res, x2);
-			ABS(distance);
+			distance = ABS(distance);
 		}
 		else {
 			x = (x1 + x2) / 2;
@@ -62,8 +63,8 @@ Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, 
 						double help1, help2;
 						help1 = func(a_res, b_res, c_res, d_res, x1);
 						help2 = func(a_res, b_res, c_res, d_res, x2);
-						ABS(help1);
-						ABS(help2);
+						help1 = ABS(help1);
+						help2 = ABS(help2);
 
 						if (help1 > help2) {
 							distance = help2;
@@ -94,21 +95,25 @@ Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, 
 			}
 		}
 	}
-	double** mass1 = (double**)calloc(1, sizeof(double*));
-	double mass2[2];
 	
 	
-	mass1[0][0] = distance;
-	double** pp = &mass1;
 	//printf("%lf\n %lf\n %lf\n %lf\n", x1, x2, x, distance); //not necessary for the function, but useful for tests
 	Answer* res = (Answer*)calloc(1, sizeof(Answer));
 	if (distance == 0) {
-		res->point = pp;
+		double** mass1 = (double**)calloc(1, sizeof(double*));
+		mass1[0] = (double*)calloc(2, sizeof(double));
+		mass1[0][0] = x;
+		mass1[0][1] = func(f[0], f[1], f[2], f[3], x);
+
+		res->type = POINT;
+		res->n = 1;
+		res->point = mass1;
 	}
 	else {
+		res->type = DISTANCE;
 		res->distance = distance;
 	}
-	res->n = 1;
+	
 
 	return res;
 }
