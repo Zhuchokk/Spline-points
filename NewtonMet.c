@@ -76,13 +76,20 @@ void sort(double* arr, int size)
 double* make_area(double x1, double x2, double x3, double x4)
 {
     double* area = calloc(2, sizeof(double));
-    if ((x3 > x2) || (x4 < x1))
+    if ((x3 > x2) || (x4 < x1)) return area;
+    else if (x3 == x2) 
     {
-        area[0] = 0; area[1] = 0;
-        return area;
+        area[0] = x3 - 0.1; area[1] = x3 + 0.1;
     }
-    area[0] = MAX(x1, x3);
-    area[1] = MIN(x2, x4);
+    else if (x4 == x1) 
+    {
+        area[0] = x4 - 0.1; area[1] = x4 + 0.1;
+    }
+    else 
+    {
+        area[0] = MAX(x1, x3);
+        area[1] = MIN(x2, x4);
+    }
     return area;
 }
 
@@ -188,6 +195,6 @@ Answer* NewtonSolve(double* f, double fx1, double fx2, double* g, double gx1, do
     free(size);
     free(points);
     free(arr);
-    
+
     return res;
 }
