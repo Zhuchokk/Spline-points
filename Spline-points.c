@@ -37,6 +37,21 @@ int main()
 	Spline *sp1 = Constructor("Spline1.txt", 1, 2); // Add there variable of file name
 	Spline *sp2 = Constructor("Spline2.txt", 1, 2);
 	
+	//Printing points
+	/*for (int i = 0; i < sp1->n - 1; i++) {
+		for (int j = 0; j < 4; j++) {
+			printf("%lf", sp1->functions[i][j]);
+		}
+		printf("\n");
+	}
+	printf("\nSecond\n");
+	for (int i = 0; i < sp2->n - 1; i++) {
+		for (int j = 0; j < 4; j++) {
+			printf("%lf", sp2->functions[i][j]);
+		}
+		printf("\n");
+	}*/
+
 	switch (mtype)
 	{
 	case NEWTON: {
@@ -59,8 +74,8 @@ int main()
 
 	for (int i = 0; i < sp1->n - 1; i++) {
 		for (int j = 0; j < sp2->n - 1; j++) {
-			
-			Answer* ans = (*method)(sp1->functions[i], sp1->points[i][0], sp1->points[i + 1][0], sp2->functions[j], sp2->points[j][0], sp2->points[j + 1][0]);
+
+			Answer* ans = (*method)(sp1->functions[i], sp1->points[i][0], sp1->points[i + 1][0] - EPS * (i != sp1->n - 2), sp2->functions[j], sp2->points[j][0], sp2->points[j + 1][0] - EPS * (j != sp2->n - 2));
 			if (ans->type == POINT) {
 				IsPointFound = 1;
 				for (int k = 0; k < ans->n; k++) {
@@ -87,7 +102,7 @@ int main()
 		printf("There are no spline intersections. Min distance is %lf\n", MinDistance);
 	}
 
-	time = time - clock();
+	time = clock() - time;
 	double timeSpent = ((double)time) / CLOCKS_PER_SEC;
 
 	printf("Time spent: %lf\n", timeSpent);
