@@ -9,8 +9,6 @@
 #define MIN(i, j) (((i) < (j)) ? (i) : (j))
 #define MAX(i, j) (((i) > (j)) ? (i) : (j))
 
-#define EPS 0.00001
-
 
 double* make_size(double x1, double x2, double x3, double x4)
 {
@@ -119,12 +117,6 @@ void get_parameters(matrix_t* R, double* arr)
 }
 
 
-double ABS(double val)
-{
-    if (val >= 0) return val;
-    return -val;
-}
-
 
 double max_sub_abs(double* a, double* b)
 {
@@ -203,18 +195,21 @@ Answer* QrSolve(double* f, double fx1, double fx2, double* g, double gx1, double
         if (rev * rev * rev * function[0] + rev * rev * function[1] + rev * function[2] + function[3] < 0.001) answer_end[i] = rev; 
         if ((answer_end[i] >= size[0]) && (answer_end[i] <= size[1]))
         {
-            double x = answer_end[i] // создал для читабельности кода
+            double x = answer_end[i]; // создал для читабельности кода
             answer_points[count_answers][0] = x;
             answer_points[count_answers][1] = x * x * x * f[0] + x * x * f[1] + x * f[2] + f[3];
             count_answers++;
         }
     }
-    if (count_answers == 0)
+    struct Answer* res = (Answer*)calloc(1, sizeof(Answer));
+    if (count_answers != 0)
     {
-        struct Answer* res = (Answer*)calloc(1, sizeof(Answer));
         res->type = POINT;
         res->n = count_answers;
         res->point = answer_points; 
+    }
+    else {
+        res->type = DISTANCE;
     }
 
     free(size);
