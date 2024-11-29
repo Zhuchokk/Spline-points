@@ -4,8 +4,8 @@
 
 #define ITERATIONS 10000000
 
-double func(double f[], double x) { //cubic function without a module
-	double ans;
+long double func(long double f[], long double x) { //cubic function without a module
+	long double ans;
 	ans = f[0] * x * x * x + f[1] * x * x + f[2] * x + f[3];
 	return ans;
 }
@@ -16,8 +16,8 @@ double derivative(double a, double b, double c, double x) { //derivative without
 	return der;
 }
 
-double partial_derivative(double coeff_the_fisrt_unknown[], double x, double the_second_unknown, double coeff_the_second_unknown[]) { //partial derivative without a module
-	double part_der;
+long double partial_derivative(long double coeff_the_fisrt_unknown[], long double x, long double the_second_unknown, long double coeff_the_second_unknown[]) { //partial derivative without a module
+	long double part_der;
 	part_der =
 		6 * coeff_the_fisrt_unknown[0] * coeff_the_fisrt_unknown[0] * x * x * x * x * x +
 		10 * coeff_the_fisrt_unknown[0] * coeff_the_fisrt_unknown[1] * x * x * x * x +
@@ -28,20 +28,20 @@ double partial_derivative(double coeff_the_fisrt_unknown[], double x, double the
 	return part_der;
 }
 
-double dist_sec_degree(double f[], double g[], double x1, double x2) { //square of the distance between the points of two splines
-	double s = (x1 - x2) * (x1 - x2) + (func(f, x1) - func(g, x2)) * (func(f, x1) - func(g, x2));
+long double dist_sec_degree(long double f[], long double g[], long double x1, long double x2) { //square of the distance between the points of two splines
+	long double s = (x1 - x2) * (x1 - x2) + (func(f, x1) - func(g, x2)) * (func(f, x1) - func(g, x2));
 	return s;
 }
 
-Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, double gx2) {
+Answer* GradientSolve(long double* f, long double fx1, long double fx2, long double* g, long double gx1, long double gx2) {
 	//f, g - arrays of coefficients
-	double x;
+	long double x;
 	int flag = 0;
-	double distance, distance2 = -1; //distance and distance^2
+	long double distance, distance2 = -1; //distance and distance^2
 
-	double xf = (fx1 + fx2) / 2;
-	double xg = (gx1 + gx2) / 2;
-	for (int i = 0; i < ITERATIONS; i++) {
+	long double xf = (fx1 + fx2) / 2;
+	long double xg = (gx1 + gx2) / 2;
+	for (long long i = 0; i < ITERATIONS; i++) {
 		if ((xf == xg) && (func(f, xf) == func(g, xg))) { //there is a root/no root in the previous iteration or at the beginning
 			x = xf;
 			distance = 0;
@@ -49,7 +49,7 @@ Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, 
 			break;
 		}
 		else {
-			double xf_old = xf, xg_old = xg;
+			long double xf_old = xf, xg_old = xg;
 			xf = xf - EPS * partial_derivative(f, xf, xg, g);
 			xg = xg - EPS * partial_derivative(g, xg, xf_old, f);
 			if (xf < fx1) { //if we exit the interval: roll back to the previous step and exit the loop
@@ -68,7 +68,6 @@ Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, 
 				xg = gx1;
 				xf = xf_old;
 				flag = 2;
-				printf("suka %lf\n", xg_old);
 				break;
 			}
 			if (xg > gx2) {
@@ -80,7 +79,7 @@ Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, 
 		}
 	}
 	if ((flag == 1) || (flag == -1)) { //fix xf and change xg
-		for (int i = 0; i < ITERATIONS; i++) {
+		for (long long i = 0; i < ITERATIONS; i++) {
 			if ((xf == xg) && (func(f, xf) == func(g, xg))) { //there is a root/no root in the previous iteration or at the beginning
 				x = xf;
 				distance = 0;
@@ -88,7 +87,7 @@ Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, 
 				break;
 			}
 			else {
-				double xg_old = xg;
+				long double xg_old = xg;
 				xg = xg - EPS * partial_derivative(g, xg, xf, f);
 				if (xg < gx1) { //when exiting and exiting the second interval, the answer is the distance between the extreme points
 					xg = gx1;
@@ -108,7 +107,7 @@ Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, 
 		}
 	}
 	if ((flag == 2) || (flag == -2)) { //fix xg and change xf
-		for (int i = 0; i < ITERATIONS; i++) {
+		for (long long i = 0; i < ITERATIONS; i++) {
 			if ((xf == xg) && (func(f, xf) == func(g, xg))) { //there is a root/no root in the previous iteration or at the beginning
 				x = xf;
 				distance = 0;
@@ -116,7 +115,7 @@ Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, 
 				break;
 			}
 			else {
-				double xf_old = xf;
+				long double xf_old = xf;
 				xf = xf - EPS * partial_derivative(f, xf, xg, g);
 				if (xf < fx1) { //when exiting and exiting the second interval, the answer is the distance between the extreme points
 					xf = fx1;
@@ -152,8 +151,8 @@ Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, 
 	//printf("%lf\n %lf\n %lf\n %lf\n flag: %d\n", xf, xg, x, distance, flag); //not necessary for the function, but useful for tests
 	Answer* res = (Answer*)calloc(1, sizeof(Answer));
 	if (distance == 0) {
-		double** mass1 = (double**)calloc(1, sizeof(double*));
-		mass1[0] = (double*)calloc(2, sizeof(double));
+		long double** mass1 = (long double**)calloc(1, sizeof(long double*));
+		mass1[0] = (long double*)calloc(2, sizeof(long double));
 		mass1[0][0] = x;
 		mass1[0][1] = func(f, x);
 
@@ -165,8 +164,87 @@ Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, 
 		res->type = DISTANCE;
 		res->distance = distance;
 	}
-	
+	return res;
+}
 
+Answer* GradientSolve_modify(long double* f, long double fx1, long double fx2, long double* g, long double gx1, long double gx2) {
+	//f, g - arrays of coefficients
+	long double x;
+	long double distance, cheat_distance = -1; //main and auxiliary variables
+
+	long double xf = (fx1 + fx2) / 2;
+	long double xg = (gx1 + gx2) / 2;
+
+	long double cheat_distance_min = sqrt(dist_sec_degree(f, g, xf, xg));
+	long double cheat_xf = xf, cheat_xg = xg;
+
+	for (long long i = 0; i < ITERATIONS; i++) {
+		if ((xf == xg) && (func(f, xf) == func(g, xg))) { //there is a root/no root in the previous iteration or at the beginning
+			x = xf;
+			distance = 0;
+			break;
+		}
+		else {
+			cheat_distance = sqrt(dist_sec_degree(f, g, xf, xg));
+			if (cheat_distance < cheat_distance_min) {
+				cheat_distance_min = cheat_distance;
+				cheat_xf = xf;
+				cheat_xg = xg;
+			}
+			if (cheat_distance == 0) {
+				x = xf;
+				distance = 0;
+				break;
+			}
+			long double xf_old = xf, xg_old = xg;
+			xf = xf - EPS * partial_derivative(f, xf, xg, g);
+			xg = xg - EPS * partial_derivative(g, xg, xf_old, f);
+
+			if (xf < fx1) { //if we exit the interval: roll back to the previous step
+				xf = (fx1 + xf_old) / 2;
+				xg = xg_old;
+				//printf("xf1: %Lf\n", xf);
+			}
+			if (xf > fx2) {
+				xf = (fx2 + xf_old) / 2;
+				xg = xg_old;
+				//printf("xf2: %Lf\n", xf);
+			}
+			if (xg < gx1) {
+				xg = (gx1 + xg_old) / 2;
+				xf = xf_old;
+				//printf("xg1: %Lf\n", xg);
+			}
+			if (xg > gx2) {
+				xg = (gx2 + xg_old) / 2;
+				xf = xf_old;
+				//printf("xg2: %Lf\n", xg);
+			}
+		}
+}
+	distance = sqrt(dist_sec_degree(f, g, xf, xg));
+	if (cheat_distance < cheat_distance_min) {
+		cheat_distance_min = cheat_distance;
+		cheat_xf = xf;
+		cheat_xg = xg;
+	}
+
+	printf("xf: %Lf\n xg: %Lf\n x: %Lf\n distance: %Lf\n cheat_distance_min: %Lf\n cheat_xf: %Lf\n cheat_xg: %Lf\n", xf, xg, x, distance, cheat_distance_min, cheat_xf, cheat_xg);
+	Answer* res = (Answer*)calloc(1, sizeof(Answer));
+	if (distance == 0) {
+		long double** mass1 = (long double**)calloc(1, sizeof(long double*));
+		mass1[0] = (long double*)calloc(2, sizeof(long double));
+		mass1[0][0] = x;
+		mass1[0][1] = func(f, x);
+
+		res->type = POINT;
+		res->n = 1;
+		res->point = mass1;
+	}
+	else {
+		res->type = DISTANCE;
+		res->distance = distance;
+	}
 	return res;
 }
 
@@ -175,14 +253,15 @@ Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, 
 	int main() {
 		//two options for input data for tests:
 
-		/*double f_test[4] = { 1, 2, -13, 10 };
-	double g_test[4] = { 1, 2, -6.25, 1 };
-	double x_test1 = 1, x_test2 = 2, x_test3 = 0, x_test4 = 1.5;*/
+		/*long double f_test[4] = { 1, 2, -13, 10 };
+	long double g_test[4] = { 1, 2, -6.25, 1 };
+	long double x_test1 = 1, x_test2 = 2, x_test3 = 0, x_test4 = 1.5;*/
 
-		double f_test[4] = { 1, 2, -13, 10 };
-		double g_test[4] = { 1, 2, -13, 1 };
-		double x_test1 = 0, x_test2 = 15, x_test3 = 0, x_test4 = 15;
+		long double f_test[4] = { 1, 2, -13, 10 };
+		long double g_test[4] = { 1, 2, -13, 1 };
+		long double x_test1 = 0, x_test2 = 15, x_test3 = 0, x_test4 = 15;
 
 		Answer* GradientSolve(f_test, x_test1, x_test2, g_test, x_test3, x_test4);
+		Answer* GradientSolve_modify(f_test, x_test1, x_test2, g_test, x_test3, x_test4);
 	}
 #endif
