@@ -23,8 +23,8 @@ double partial_derivative(double coeff_the_fisrt_unknown[], double x, double the
 		10 * coeff_the_fisrt_unknown[0] * coeff_the_fisrt_unknown[1] * x * x * x * x +
 		4 * (coeff_the_fisrt_unknown[1] * coeff_the_fisrt_unknown[1] + 2 * coeff_the_fisrt_unknown[0] * coeff_the_fisrt_unknown[2]) * x * x * x +
 		6 * (coeff_the_fisrt_unknown[0] * coeff_the_fisrt_unknown[3] + coeff_the_fisrt_unknown[1] * coeff_the_fisrt_unknown[2] - coeff_the_fisrt_unknown[0] * func(coeff_the_second_unknown, the_second_unknown)) * x * x
-		+ 2 * coeff_the_fisrt_unknown[1] * (coeff_the_fisrt_unknown[1] + 2 * coeff_the_fisrt_unknown[3] - 2 * func(coeff_the_second_unknown, the_second_unknown)) * x;
-	+2 * coeff_the_fisrt_unknown[2] * (coeff_the_fisrt_unknown[3] - func(coeff_the_second_unknown, the_second_unknown));
+		+ 2 * (1 + coeff_the_fisrt_unknown[1] * coeff_the_fisrt_unknown[1] + 2 * coeff_the_fisrt_unknown[1] * coeff_the_fisrt_unknown[3] - 2 * func(coeff_the_second_unknown, the_second_unknown) * coeff_the_fisrt_unknown[1]) * x;
+	+2 * (-the_second_unknown + coeff_the_fisrt_unknown[2] * coeff_the_fisrt_unknown[3] - func(coeff_the_second_unknown, the_second_unknown) * coeff_the_fisrt_unknown[2]);
 	return part_der;
 }
 
