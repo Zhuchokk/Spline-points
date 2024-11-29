@@ -10,9 +10,9 @@
 #pragma warning(disable:4996)
 #endif 
 
-#define MAINFILE_DEBUG 1
+#define MAINFILE_DEBUG 0
 
-#ifdef MAINFILE_DEBUG
+#if MAINFILE_DEBUG
 
 
 int main()

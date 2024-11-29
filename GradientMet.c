@@ -248,8 +248,40 @@ Answer* GradientSolve_modify(long double* f, long double fx1, long double fx2, l
 	return res;
 }
 
-#define GRADIENTMET 0
-#ifndef GRADIENTMET
+Answer* GradientSolve_modify2(double* f, double fx1, double fx2, double* g, double gx1, double gx2) {
+	double point[2] = {fx1, gx1};
+	double point_next[2];
+	double gradient[2] = {partial_derivative(f, point[0], point[1], g), partial_derivative(g, point[1], point[0], f) };
+	double step = 0.00001;
+
+	for (int i = 0; i < ITERATIONS; i++) {
+		if (ABS(gradient[0]) <= EPS && ABS(gradient[1]) <= EPS && dist_sec_degree(f, g, point[0], point[1]) <= EPS) {
+			printf("Intersection is found: %lf %lf", point[0], point[1]);
+			break;
+		}
+		else if (ABS(gradient[0]) <= EPS && ABS(gradient[1]) <= EPS && dist_sec_degree(f, g, point[0], point[1]) > EPS) {
+			printf("Local min in %lf %lf\n", point[0], point[1]);
+			break;
+		}
+
+		point_next[0] = point[0] - step * gradient[0];
+		point_next[1] = point[1] - step * gradient[1];
+		/*printf("New point %lf %lf Gradient %lf %lf\n", point_next[0], point_next[1], gradient[0], gradient[1]);*/
+		point[0] = point_next[0];
+		point[1] = point_next[1];
+		gradient[0] = partial_derivative(f, point[0], point[1], g); 
+		gradient[1] = partial_derivative(g, point[1], point[0], f);
+
+		if (point[0] > fx2 || point[1] > gx2) {
+			printf("Min is %lf %lf", fx2, gx2);
+			break;
+		}
+	}
+	return NULL;
+}
+
+#define GRADIENTMET 1
+#if GRADIENTMET 1
 	int main() {
 		//two options for input data for tests:
 
@@ -257,11 +289,10 @@ Answer* GradientSolve_modify(long double* f, long double fx1, long double fx2, l
 	long double g_test[4] = { 1, 2, -6.25, 1 };
 	long double x_test1 = 1, x_test2 = 2, x_test3 = 0, x_test4 = 1.5;*/
 
-		long double f_test[4] = { 1, 2, -13, 10 };
-		long double g_test[4] = { 1, 2, -13, 1 };
-		long double x_test1 = 0, x_test2 = 15, x_test3 = 0, x_test4 = 15;
+		long double f_test[4] = { 3, 5, 1, 0.1 };
+		long double g_test[4] = { 2, 4, 1, 0.01 };
+		long double x_test1 = -2, x_test2 = 3, x_test3 = -2, x_test4 = 3;
+		GradientSolve_modify2(f_test, x_test1, x_test2, g_test, x_test3, x_test4);
 
-		Answer* GradientSolve(f_test, x_test1, x_test2, g_test, x_test3, x_test4);
-		Answer* GradientSolve_modify(f_test, x_test1, x_test2, g_test, x_test3, x_test4);
 	}
 #endif
