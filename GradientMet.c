@@ -252,7 +252,7 @@ Answer* GradientSolve_modify2(double* f, double fx1, double fx2, double* g, doub
 	double point[2] = {fx1, gx1};
 	double point_next[2];
 	double gradient[2] = {partial_derivative(f, point[0], point[1], g), partial_derivative(g, point[1], point[0], f) };
-	double step = 0.00001;
+	double step = 0.001;
 
 	for (int i = 0; i < ITERATIONS; i++) {
 		if (ABS(gradient[0]) <= EPS && ABS(gradient[1]) <= EPS && dist_sec_degree(f, g, point[0], point[1]) <= EPS) {
@@ -266,11 +266,11 @@ Answer* GradientSolve_modify2(double* f, double fx1, double fx2, double* g, doub
 
 		point_next[0] = point[0] - step * gradient[0];
 		point_next[1] = point[1] - step * gradient[1];
-		/*printf("New point %lf %lf Gradient %lf %lf\n", point_next[0], point_next[1], gradient[0], gradient[1]);*/
 		point[0] = point_next[0];
 		point[1] = point_next[1];
 		gradient[0] = partial_derivative(f, point[0], point[1], g); 
 		gradient[1] = partial_derivative(g, point[1], point[0], f);
+		printf("New point %lf %lf Gradient %lf %lf\n", point_next[0], point_next[1], gradient[0], gradient[1]);
 
 		if (point[0] > fx2 || point[1] > gx2) {
 			printf("Min is %lf %lf", fx2, gx2);
@@ -280,7 +280,7 @@ Answer* GradientSolve_modify2(double* f, double fx1, double fx2, double* g, doub
 	return NULL;
 }
 
-#define GRADIENTMET 1
+#define GRADIENTMET 0
 #if GRADIENTMET 1
 	int main() {
 		//two options for input data for tests:
