@@ -9,11 +9,6 @@
 #define MAX(i, j) (((i) > (j)) ? (i) : (j))
 
 
-double Fx0(double x, double* arr) { // нахождение значения функции
-    double ans = arr[0] * x * x * x + arr[1] * x * x + arr[2] * x + arr[3];
-    return ans;
-}
-    
 
 double Fshx0(double x, double* arr) { // нахождение значения производной функции
     return arr[0] * x * x + arr[1] * x + arr[2];
@@ -199,30 +194,6 @@ Answer* NewtonSolve(double* f, double fx1, double fx2, double* g, double gx1, do
     return res;
 }
 
-double FirstPartialDerivative(double* f, double x) {
-    return 3 * f[0] * x * x + 2 * f[1] * x + f[2];
-}
-
-double SecondPartialDerivative(double* f, double x) {
-    return 6 * f[0] * x + 2 * f[1];
-}
-
-double FirstArgPartialDerFunction(double* f, double* g, double x1, double c) { // Common derivative h'(x1), x - root, c - const
-    return 2 * x1 - 2 * c + 2 * Fx0(x1, f) * FirstPartialDerivative(f, x1) - 2 * Fx0(c, g) * FirstPartialDerivative(f, x1);
-}
-
-double SecondArgPartialDerFunction(double* f, double* g, double x2, double c) {
-    return 2 * x2 - 2 * c + 2 * Fx0(x2, g) * FirstPartialDerivative(g, x2) - 2 * Fx0(c, f) * FirstPartialDerivative(g, x2) ;
-}
-
-double FirstArgFunction(double* f, double* g, double x1, double c) {
-    return x1 * x1 - 2 * x1 * c + c * c + Fx0(x1, f) * Fx0(x1, f) - 2 * Fx0(x1, f) * Fx0(c, g) + Fx0(c, g) * Fx0(c, g);
-}
-
-double SecondArgFunction(double* f, double* g, double x2, double c) {
-    return c * c - 2 * x2 * c + x2 * x2 + Fx0(c, f) * Fx0(c, f) - 2 * Fx0(c, f) * Fx0(x2, g) + Fx0(x2, g) * Fx0(x2, g);
-}
-
 double NewtonOptimise(double *f, double* g, double fx1, double fx2, double gx1, double gx2, double fixed_x,int argnum) {
     double x0, x1;
     double (*func)(double* f, double* g, double x, double c);
@@ -262,13 +233,18 @@ double CoordDescent(double* f, double fx1, double fx2, double* g, double gx1, do
     double x1 = (fx1 + fx2) / 2;
     double x2 = (gx1 + gx2) / 2;
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 10000; i++) {
+        if (i % 100 == 0)
+            printf("%d", i);
         //fix x1, find x2
         x2 = NewtonOptimise(f, g, fx1, fx2, gx1, gx2, x1, 2);
-        printf("%lf %lf\n", x1, x2);
+        /*printf("%lf %lf\n", x1, x2);*/
         //fix x2, find x1
         x1 = NewtonOptimise(f, g, fx1, fx2, gx1, gx2, x2, 1);
-        printf("%lf %lf\n", x1, x2);
+        /*printf("%lf %lf\n", x1, x2);*/
+        if (ABS(FirstArgPartialDerFunction(f, g, x1, x2)) < EPS) { //min is found
+            break;
+        }
     }
     return FirstArgFunction(f, g, x1, x2) * FirstArgFunction(f, g, x1, x2);
 }
@@ -283,6 +259,7 @@ int main() {
     long double g_test[4] = { -2, 3, 1, 2 };
     long double x_test1 = -2, x_test2 = 2, x_test3 = -2, x_test4 = 2;
     CoordDescent(f_test, x_test1, x_test2, g_test, x_test3, x_test4);
+    printf("%lf", FirstArgPartialDerFunction(f_test, g_test, 0.6126, 0.6126)); // true min
 
 }
 #endif
