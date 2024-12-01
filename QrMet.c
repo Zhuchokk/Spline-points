@@ -76,8 +76,8 @@ void add_vectors(double* a, double* b, int flag, int len)
 
 void create_Q_matrix(matrix_t* sup, matrix_t* Q, int len)
 {
-    double vectors[len][len];
-    double e_vectors[len][len];
+    double vectors[3][3];
+    double e_vectors[3][3];
 
     for (int i = 0; i < len; i++)
         for(int j = 0; j < len; j++)
@@ -85,7 +85,7 @@ void create_Q_matrix(matrix_t* sup, matrix_t* Q, int len)
     
     for (int i = 0; i < len; i++)
     {
-        double buff_add[len];
+        double buff_add[3];
         for (int k = 0; k < len; k++)
             buff_add[k] = 0;
 
@@ -93,7 +93,7 @@ void create_Q_matrix(matrix_t* sup, matrix_t* Q, int len)
         {
             double val = mul_scalar(vectors[j], vectors[i], len) / mul_scalar(vectors[j], vectors[j], len);
 
-            double buff_mul[len];
+            double buff_mul[3];
             for (int k = 0; k < len; k++)
                 buff_mul[k] = 0;
         
@@ -214,8 +214,8 @@ Answer* QrSolve(double* f, double fx1, double fx2, double* g, double gx1, double
     if (function[0] != 0) len = 3;
     else len = 2;
 
-    double answer_start[len];
-    double answer_end[len];
+    double answer_start[3];
+    double answer_end[3];
 
     matrix_t support;
     matrix_t Q;
