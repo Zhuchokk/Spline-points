@@ -203,7 +203,7 @@ int condition(matrix_t* x, matrix_t* x_next, matrix_t* gradient) {
 }
 
 
-double NewtonOptimise2(Spline* sp1, Spline* sp2) {
+double NewtonOptimise(Spline* sp1, Spline* sp2) {
     
     int index1 = 0;
     int index2 = 0;
@@ -294,28 +294,6 @@ double NewtonOptimise2(Spline* sp1, Spline* sp2) {
     return sqrt(dist_sec_degree(sp1->functions[index1], sp2->functions[index2], x_next.matrix[0][0], x_next.matrix[0][1]));
 }
 
-//not in use
-double CoordDescent_old(double* f, double fx1, double fx2, double* g, double gx1, double gx2) {
-    double x1 = (fx1 + fx2) / 2;
-    double x2 = (gx1 + gx2) / 2;
-
-    for (int i = 0; i < 1; i++) {
-        if (i % 100 == 0)
-            printf("%d", i);
-        //fix x1, find x2
-        x2 = NewtonOptimise(f, g, fx1, fx2, gx1, gx2, x1, 2);
-        /*printf("%lf %lf\n", x1, x2);*/
-        //fix x2, find x1
-        x1 = NewtonOptimise(f, g, fx1, fx2, gx1, gx2, x2, 1);
-        /*printf("%lf %lf\n", x1, x2);*/
-        if (ABS(FirstArgPartialDerFunction(f, g, x1, x2)) < EPS) { //min is found
-            break;
-        }
-    }
-    return FirstArgFunction(f, g, x1, x2) * FirstArgFunction(f, g, x1, x2);
-}
-
-//not in use
 double NewtonOptimise_old(double* f, double* g, double fx1, double fx2, double gx1, double gx2, double fixed_x, int argnum) {
     double x0, x1;
     double (*func)(double* f, double* g, double x, double c);
@@ -336,7 +314,7 @@ double NewtonOptimise_old(double* f, double* g, double fx1, double fx2, double g
         derivative = SecondArgPartialDerFunction;
         l = gx1;
         r = gx2;
-}
+    }
 
     x1 = x0 - func(f, g, x0, fixed_x) / derivative(f, g, x0, fixed_x);
     double min = func(f, g, x0, fixed_x);
@@ -358,19 +336,26 @@ double NewtonOptimise_old(double* f, double* g, double fx1, double fx2, double g
     return x1;
 }
 
+//not in use
+double CoordDescent_old(double* f, double fx1, double fx2, double* g, double gx1, double gx2) {
+    double x1 = (fx1 + fx2) / 2;
+    double x2 = (gx1 + gx2) / 2;
 
-#define NEWTONTMET 0
-#if NEWTONTMET 1
-int main() {
-
-    long double f_test[4] = { 3, 5, 1, 0.1 };
-    long double g_test[4] = { -2, 3, 1, 2 };
-    long double x_test1 = -2, x_test2 = 2, x_test3 = -2, x_test4 = 2;
-    /*CoordDescent(f_test, x_test1, x_test2, g_test, x_test3, x_test4);*/
-
-    Spline* sp1 = Constructor("Spline1.txt", 1, 2); // Add there variable of file name
-    Spline* sp2 = Constructor("Spline2.txt", 1, 2);
-
-    NewtonOptimise2(sp1, sp2);
+    for (int i = 0; i < 1; i++) {
+        if (i % 100 == 0)
+            printf("%d", i);
+        //fix x1, find x2
+        x2 = NewtonOptimise_old(f, g, fx1, fx2, gx1, gx2, x1, 2);
+        /*printf("%lf %lf\n", x1, x2);*/
+        //fix x2, find x1
+        x1 = NewtonOptimise_old(f, g, fx1, fx2, gx1, gx2, x2, 1);
+        /*printf("%lf %lf\n", x1, x2);*/
+        if (ABS(FirstArgPartialDerFunction(f, g, x1, x2)) < EPS) { //min is found
+            break;
+        }
+    }
+    return FirstArgFunction(f, g, x1, x2) * FirstArgFunction(f, g, x1, x2);
 }
-#endif
+
+//not in use
+

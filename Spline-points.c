@@ -10,7 +10,7 @@
 #pragma warning(disable:4996)
 #endif 
 
-#define MAINFILE_DEBUG 0
+#define MAINFILE_DEBUG 1
 #if MAINFILE_DEBUG
 
 
@@ -74,21 +74,15 @@ int main()
 
 	for (int i = 0; i < sp1->n - 1; i++) {
 		for (int j = 0; j < sp2->n - 1; j++) {
-			Answer* ans;
-			if (mtype == GRADIENT) {
-				ans = GradientSolve(sp1, sp2);
-			}
-			else {
-				ans = (*method)(sp1->functions[i], sp1->points[i][0], sp1->points[i + 1][0] - EPS * (i != sp1->n - 2), sp2->functions[j], sp2->points[j][0], sp2->points[j + 1][0] - EPS * (j != sp2->n - 2));
-			}
-			
+
+			Answer* ans = (*method)(sp1->functions[i], sp1->points[i][0], sp1->points[i + 1][0] - EPS * (i != sp1->n - 2), sp2->functions[j], sp2->points[j][0], sp2->points[j + 1][0] - EPS * (j != sp2->n - 2));
 			if (ans->type == POINT) {
 				IsPointFound = 1;
 				for (int k = 0; k < ans->n; k++) {
 					printf("The splines intersect in (%lf, %lf)\n", ans->point[k][0], ans->point[k][1]);
 				}
 			}
-			else if (ans->type == DISTANCE) { 
+			else if (ans->type == DISTANCE) {
 				if (mtype == QR) { continue; } // QR can't find distance, skip
 				if (MinDistance == -1) {
 					MinDistance = ans->distance;
@@ -103,14 +97,20 @@ int main()
 				printf("Answer type error");
 				return 0;
 			}
-			if (mtype == GRADIENT) //gradient is used once only
-				break;
 		}
-		if (mtype == GRADIENT)
-			break;
 	}
 	if (!IsPointFound) {
-		printf("There are no spline intersections. Min distance is %lf\n", MinDistance);
+		double MinDistanceOptimised;
+		if (mtype == NEWTON) {
+			MinDistanceOptimised = NewtonOptimise(sp1, sp2);
+		}
+		else {
+			MinDistanceOptimised = GradientOptimise(sp1, sp2);
+		}
+		if (MinDistanceOptimised > MinDistance &&MinDistance != -1) { // mindistance is smaller and defined
+			MinDistanceOptimised = MinDistance;
+		}
+		printf("There are no spline intersections. Min distance is %lf\n", MinDistanceOptimised);
 	}
 
 	time = clock() - time;
