@@ -1,6 +1,7 @@
 #include"GradientMet.h"
 #include"Spline.h"
 #include<stdlib.h>
+#include<math.h>
 
 #define ITERATIONS 10000000
 
@@ -20,7 +21,7 @@ Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, 
 	//f, g - arrays of coefficients
 	double a_res, b_res, c_res, d_res, x1, x2, x;
 	int flag;
-	
+
 	double distance = -1;
 	a_res = f[0] - g[0];
 	b_res = f[1] - g[1];
@@ -96,8 +97,8 @@ Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, 
 			}
 		}
 	}
-	
-	
+
+
 	//printf("%lf\n %lf\n %lf\n %lf\n", x1, x2, x, distance); //not necessary for the function, but useful for tests
 	Answer* res = (Answer*)calloc(1, sizeof(Answer));
 	if (distance == 0) {
@@ -114,17 +115,77 @@ Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, 
 		res->type = DISTANCE;
 		res->distance = distance;
 	}
-	
+
 
 	return res;
 }
 
-#define GRADIENTMET 0
-#ifndef GRADIENTMET
-	int main() {
-		double f_test[4] = { 2, -8, 4, 8 };
-		double g_test[4] = { 1, 1, 1, 1 };
-		double x_test1 = 0, x_test2 = 5, x_test3 = -3, x_test4 = 2;
-		Answer* GradientSolve(f_test, x_test1, x_test2, g_test, x_test3, x_test4);
+
+
+double GradientOptimise(Spline* sp1, Spline* sp2) {
+	double point[2] = {sp1->points[0][0], sp2->points[0][0]};
+	double point_next[2];
+	double gradient[2] = { FirstArgPartialDerFunction(sp1->functions[0], sp2->functions[0], point[0], point[1]), SecondArgPartialDerFunction(sp1->functions[0], sp2->functions[0], point[1], point[0])};
+	double step = 0.0001;
+	int index1 = 0;
+	int index2 = 0;
+	double distance = sqrt(dist_sec_degree(sp1->functions[index1], sp2->functions[index2], point[0], point[1]));
+
+	for (int i = 0; i < ITERATIONS; i++) {
+		if (ABS(gradient[0]) <= EPS && ABS(gradient[1]) <= EPS && dist_sec_degree(sp1->functions[index1], sp2->functions[index2], point[0], point[1]) <= EPS) {
+			/*printf("Intersection is found: %lf %lf", point[0], point[1]);*/
+			//intersection so distance 0
+			distance = 0;
+			return distance;
+		}
+		else if (ABS(gradient[0]) <= EPS && ABS(gradient[1]) <= EPS && dist_sec_degree(sp1->functions[index1], sp2->functions[index2], point[0], point[1]) > EPS) {
+			//distance
+			distance = sqrt(dist_sec_degree(sp1->functions[index1], sp2->functions[index2], point[0], point[1]));
+			return distance;
+		}
+
+
+		point_next[0] = point[0] - step * gradient[0];
+		point_next[1] = point[1] - step * gradient[1];
+		point[0] = point_next[0];
+		point[1] = point_next[1];
+
+		for (int j = 0; j < sp1->n - 1; j++) {
+			if(point[0] < sp1->points[j][0] && j == 0) {
+				/*printf("LAST MIN FOUND: %lf %lf\n", sp1->points[j][0], point[1]);*/ // too small point?
+				point[0] = (sp1->points[j][0] - point[0]) + sp1->points[j][0]; //mirror
+				index1 = 0;
+			}
+			if (point[0] > sp1->points[j + 1][0] && j + 1 == sp1->n - 1) {
+				//printf("LAST MIN FOUND: %lf %lf\n", sp1->points[j + 1][0], point[1]); // too big point
+				point[0] = sp1->points[j][0] + point[0] - sp1->points[j + 1][0]; //mirror
+				index1 = j;
+			}
+			if (point[0] >= sp1->points[j][0] && point[0] <= sp1->points[j + 1][0]) {
+				index1 = j;
+				break;
+			}
+		}
+		for (int j = 0; j < sp2->n - 1; j++) {
+			if (point[1] < sp2->points[j][0] && j == 0) {
+				//printf("LAST MIN FOUND: %lf %lf\n", point[0], sp2->points[j][0]); // to small point?
+				point[1] = (sp2->points[j][0] - point[1]) + sp2->points[j][0]; // mirror
+				index2 = 0;
+			}
+			if (point[0] > sp2->points[j + 1][0] && j + 1 == sp2->n - 1) {
+				//printf("LAST MIN FOUND: %lf %lf\n", point[0], sp2->points[j + 1][0]); // to big point
+				point[1] = sp2->points[j][0] + point[1] - sp2->points[j + 1][0]; //mirror
+				index2 = j;
+			}
+			if (point[1] >= sp2->points[j][0] && point[0] <= sp2->points[j + 1][0]) {
+				index1 = j;
+				break;
+			}
+		}
+		gradient[0] = FirstArgPartialDerFunction(sp1->functions[index1], sp2->functions[index2], point[0], point[1]);
+		gradient[1] = SecondArgPartialDerFunction(sp1->functions[index1], sp2->functions[index2], point[1], point[0]);
+		/*if(i % 100000 == 0)
+			printf("New point %lf %lf Gradient %lf %lf Functions %d %d\n", point_next[0], point_next[1], gradient[0], gradient[1], index1, index2);*/
 	}
-#endif
+	return distance;
+}

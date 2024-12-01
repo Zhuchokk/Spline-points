@@ -11,8 +11,7 @@
 #endif 
 
 #define MAINFILE_DEBUG 1
-
-#ifdef MAINFILE_DEBUG
+#if MAINFILE_DEBUG
 
 
 int main()
@@ -83,7 +82,7 @@ int main()
 					printf("The splines intersect in (%lf, %lf)\n", ans->point[k][0], ans->point[k][1]);
 				}
 			}
-			else if (ans->type == DISTANCE) { 
+			else if (ans->type == DISTANCE) {
 				if (mtype == QR) { continue; } // QR can't find distance, skip
 				if (MinDistance == -1) {
 					MinDistance = ans->distance;
@@ -101,7 +100,17 @@ int main()
 		}
 	}
 	if (!IsPointFound) {
-		printf("There are no spline intersections. Min distance is %lf\n", MinDistance);
+		double MinDistanceOptimised;
+		if (mtype == NEWTON) {
+			MinDistanceOptimised = NewtonOptimise(sp1, sp2);
+		}
+		else {
+			MinDistanceOptimised = GradientOptimise(sp1, sp2);
+		}
+		if (MinDistanceOptimised > MinDistance &&MinDistance != -1) { // mindistance is smaller and defined
+			MinDistanceOptimised = MinDistance;
+		}
+		printf("There are no spline intersections. Min distance is %lf\n", MinDistanceOptimised);
 	}
 
 	time = clock() - time;

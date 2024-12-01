@@ -82,3 +82,52 @@ double ABS(double x)  // number module
 	if (x < 0) return -x;
 	return x;
 }
+
+double Fx0(double x, double* arr) { // нахождение значения функции
+	double ans = arr[0] * x * x * x + arr[1] * x * x + arr[2] * x + arr[3];
+	return ans;
+}
+
+double FirstPartialDerivative(double* f, double x) { //f'(x), where f(x) = ax^3 + bx^2 + cx + d
+	return 3 * f[0] * x * x + 2 * f[1] * x + f[2];
+}
+
+double SecondPartialDerivative(double* f, double x) { //f''(x), where f(x) = ax^3 + bx^2 + cx + d
+	return 6 * f[0] * x + 2 * f[1];
+}
+
+double FirstArgPartialDerFunction(double* f, double* g, double x1, double c) { // Common derivative h'(x1), x - root, c - const
+	return 2 * x1 - 2 * c + 2 * Fx0(x1, f) * FirstPartialDerivative(f, x1) - 2 * Fx0(c, g) * FirstPartialDerivative(f, x1);
+}
+
+double SecondArgPartialDerFunction(double* f, double* g, double x2, double c) {
+	return 2 * x2 - 2 * c + 2 * Fx0(x2, g) * FirstPartialDerivative(g, x2) - 2 * Fx0(c, f) * FirstPartialDerivative(g, x2);
+}
+
+double FirstArgFunction(double* f, double* g, double x1, double c) { //value of partial function
+	return x1 * x1 - 2 * x1 * c + c * c + Fx0(x1, f) * Fx0(x1, f) - 2 * Fx0(x1, f) * Fx0(c, g) + Fx0(c, g) * Fx0(c, g);
+}
+
+double SecondArgFunction(double* f, double* g, double x2, double c) {
+	return c * c - 2 * x2 * c + x2 * x2 + Fx0(c, f) * Fx0(c, f) - 2 * Fx0(c, f) * Fx0(x2, g) + Fx0(x2, g) * Fx0(x2, g);
+}
+
+double FirstArgPartialCommonDerivative(double* f, double* g, double x1, double c) { // h''(x1)
+	return 2 + 2 * (FirstPartialDerivative(f, x1) * FirstPartialDerivative(f, x1) + Fx0(x1, f) * SecondPartialDerivative(f, x1)) - 2 * Fx0(c, g) * SecondPartialDerivative(f, x1);
+}
+
+double SecondArgPartialCommonDerivative(double* f, double* g, double x2, double c) { //h''(x2)
+	return 2 + 2 * (FirstPartialDerivative(g, x2) * FirstPartialDerivative(g, x2) + Fx0(x2, g) * SecondPartialDerivative(f, x2)) - 2 * Fx0(c, f) * SecondPartialDerivative(g, x2);
+}
+double AllArgPartialCommonDerivative(double* f, double* g, double x1, double x2) { //h''(x1, x2)
+	return -2 - 2 * FirstPartialDerivative(f, x1) * FirstPartialDerivative(g, x2);
+}
+
+double AllArgReversedPartialCommonDerivative(double* f, double* g, double x1, double x2) { //h''(x2, x1)
+	return -2 - 2 * FirstPartialDerivative(f, x1) * FirstPartialDerivative(g, x2);
+}
+
+long double dist_sec_degree(long double f[], long double g[], long double x1, long double x2) { //square of the distance between the points of two splines
+	long double s = (x1 - x2) * (x1 - x2) + (Fx0(x1, f) - Fx0(x2, g)) * (Fx0(x1, f) - Fx0(x2, g));
+	return s;
+}

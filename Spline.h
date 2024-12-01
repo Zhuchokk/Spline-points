@@ -23,4 +23,22 @@ Spline* Constructor(char* filename, const double a, const double b);
 
 double ABS(double x);
 
+double Fx0(double x, double* arr);
+
+double FirstPartialDerivative(double* f, double x);
+double SecondPartialDerivative(double* f, double x);
+
+double FirstArgPartialDerFunction(double* f, double* g, double x1, double c);
+double SecondArgPartialDerFunction(double* f, double* g, double x2, double c);
+
+double FirstArgFunction(double* f, double* g, double x1, double c);
+double SecondArgFunction(double* f, double* g, double x2, double c);
+
+double FirstArgPartialCommonDerivative(double* f, double* g, double x1, double c);
+double SecondArgPartialCommonDerivative(double* f, double* g, double x2, double c);
+
+double AllArgPartialCommonDerivative(double* f, double* g, double x1, double x2);
+double AllArgReversedPartialCommonDerivative(double* f, double* g, double x1, double x2);
+
+long double dist_sec_degree(long double f[], long double g[], long double x1, long double x2);
 #endif
