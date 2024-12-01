@@ -167,7 +167,7 @@ Answer* NewtonSolve(double* f, double fx1, double fx2, double* g, double gx1, do
         count_points++;
     }
 
-    struct Answer* res = (Answer*)calloc(1, sizeof(Answer));
+    Answer* res = (Answer*)calloc(1, sizeof(Answer));
 
     if (count_points == 0) {
         double dis_end = (size[0] + size[1]) / 2;
@@ -217,15 +217,30 @@ double NewtonOptimise(double *f, double* g, double fx1, double fx2, double gx1, 
     }
    
     x1 = x0 - func(f, g, x0, fixed_x) / derivative(f, g, x0, fixed_x);
+    double min = func(f, g, x0, fixed_x);
 
-    while (ABS(x0 - x1) > EPS && i < 100000) {
+    while (ABS(x0 - x1) > EPS && i < 10) {
+        if (x1 < l || x1 > r) {
+            x1 = (x0 + x1) / 2;
+            continue;
+        }
         x0 = x1;
         x1 = x0 - func(f, g, x0, fixed_x) / derivative(f, g, x0, fixed_x);
-        
-        /*printf("%lf %lf %lf\n", x0, func(f, g, x0, fixed_x), derivative(f, g, x0, fixed_x));*/
+        if (min > func(f, g, x0, fixed_x))
+            min = func(f, g, x0, fixed_x);
+        printf("%lf %lf %lf\n", x0, func(f, g, x0, fixed_x), derivative(f, g, x0, fixed_x));
+
         i++;
     }
+    printf("MIN %lf\n", min);
     return x1;
+}
+
+double NewtonOptimise2(Spline* sp1, Spline* sp2) {
+    double point[2] = { sp1->points[0][0], sp2->points[0][0] };
+    double point_next[2];
+    double gradient[2] = { FirstArgPartialDerFunction(sp1->functions[0], sp2->functions[0], point[0], point[1]), SecondArgPartialDerFunction(sp1->functions[0], sp2->functions[0], point[1], point[0]) };
+    double gess[2][2];
 }
 
 
@@ -233,7 +248,7 @@ double CoordDescent(double* f, double fx1, double fx2, double* g, double gx1, do
     double x1 = (fx1 + fx2) / 2;
     double x2 = (gx1 + gx2) / 2;
 
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < 1; i++) {
         if (i % 100 == 0)
             printf("%d", i);
         //fix x1, find x2
@@ -251,7 +266,7 @@ double CoordDescent(double* f, double fx1, double fx2, double* g, double gx1, do
 
 
 
-#define NEWTONTMET 0
+#define NEWTONTMET 1
 #if NEWTONTMET 1
 int main() {
 
@@ -259,7 +274,8 @@ int main() {
     long double g_test[4] = { -2, 3, 1, 2 };
     long double x_test1 = -2, x_test2 = 2, x_test3 = -2, x_test4 = 2;
     CoordDescent(f_test, x_test1, x_test2, g_test, x_test3, x_test4);
-    printf("%lf", FirstArgPartialDerFunction(f_test, g_test, 0.6126, 0.6126)); // true min
+    printf("%lf\n", FirstArgPartialDerFunction(f_test, g_test, 0.6126, 0.6126)); // true min
+    printf("test %lf\n", FirstArgFunction(f_test, g_test, 0.724, 5.284)); // true min
 
 }
 #endif
