@@ -33,8 +33,8 @@ int main()
 	printf("Choose the method(0 - Newton, 1 - Gradient, 2 - Accompanying matrix + QR)\n");
 	scanf("%d", &mtype);
 
-	Spline *sp1 = Constructor("Spline1.txt", 1, 2); // Add there variable of file name
-	Spline *sp2 = Constructor("Spline2.txt", 1, 2);
+	Spline *sp1 = Constructor(filename1, 1, 2);
+	Spline *sp2 = Constructor(filename2, 1, 2);
 	
 	//Printing points
 	/*for (int i = 0; i < sp1->n - 1; i++) {

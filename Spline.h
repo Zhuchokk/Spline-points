@@ -21,6 +21,8 @@ typedef struct Answer {
 
 Spline* Constructor(char* filename, const double a, const double b);
 
+//math common methods
+
 double ABS(double x);
 
 double Fx0(double x, double* arr);

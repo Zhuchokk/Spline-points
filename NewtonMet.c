@@ -195,14 +195,14 @@ Answer* NewtonSolve(double* f, double fx1, double fx2, double* g, double gx1, do
     return res;
 }
 
-
+//Exit condition for newton
 int condition(matrix_t* x, matrix_t* x_next, matrix_t* gradient) {
     int vars_condition = (x->matrix[0][0] - x_next->matrix[0][0]) * (x->matrix[0][0] - x_next->matrix[0][0]) + (x->matrix[0][1] - x_next->matrix[0][1]) * (x->matrix[0][1] - x_next->matrix[0][1]) > EPS;
     int grad_condition = (gradient->matrix[0][0] - gradient->matrix[0][1]) * (gradient->matrix[0][0] - gradient->matrix[0][1]) > EPS;
     return vars_condition || grad_condition;
 }
 
-
+//Newton method using gesse and gradient matrix
 double NewtonOptimise(Spline* sp1, Spline* sp2) {
     
     int index1 = 0;
@@ -294,6 +294,7 @@ double NewtonOptimise(Spline* sp1, Spline* sp2) {
     return sqrt(dist_sec_degree(sp1->functions[index1], sp2->functions[index2], x_next.matrix[0][0], x_next.matrix[0][1]));
 }
 
+//not in use
 double NewtonOptimise_old(double* f, double* g, double fx1, double fx2, double gx1, double gx2, double fixed_x, int argnum) {
     double x0, x1;
     double (*func)(double* f, double* g, double x, double c);
@@ -356,6 +357,3 @@ double CoordDescent_old(double* f, double fx1, double fx2, double* g, double gx1
     }
     return FirstArgFunction(f, g, x1, x2) * FirstArgFunction(f, g, x1, x2);
 }
-
-//not in use
-
