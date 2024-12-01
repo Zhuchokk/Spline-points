@@ -126,3 +126,8 @@ double AllArgPartialCommonDerivative(double* f, double* g, double x1, double x2)
 double AllArgReversedPartialCommonDerivative(double* f, double* g, double x1, double x2) { //h''(x2, x1)
 	return -2 - 2 * FirstPartialDerivative(f, x1) * FirstPartialDerivative(g, x2);
 }
+
+long double dist_sec_degree(long double f[], long double g[], long double x1, long double x2) { //square of the distance between the points of two splines
+	long double s = (x1 - x2) * (x1 - x2) + (Fx0(x1, f) - Fx0(x2, g)) * (Fx0(x1, f) - Fx0(x2, g));
+	return s;
+}

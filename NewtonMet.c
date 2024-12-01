@@ -1,5 +1,6 @@
 #include"NewtonMet.h"
 #include"Spline.h"
+#include"s21_matrix.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,7 +9,7 @@
 #define MIN(i, j) (((i) < (j)) ? (i) : (j))
 #define MAX(i, j) (((i) > (j)) ? (i) : (j))
 
-
+#define NEWTON_ITERATIONS 10000000
 
 double Fshx0(double x, double* arr) { // нахождение значения производной функции
     return arr[0] * x * x + arr[1] * x + arr[2];
@@ -194,7 +195,128 @@ Answer* NewtonSolve(double* f, double fx1, double fx2, double* g, double gx1, do
     return res;
 }
 
-double NewtonOptimise(double *f, double* g, double fx1, double fx2, double gx1, double gx2, double fixed_x,int argnum) {
+
+int condition(matrix_t* x, matrix_t* x_next, matrix_t* gradient) {
+    int vars_condition = (x->matrix[0][0] - x_next->matrix[0][0]) * (x->matrix[0][0] - x_next->matrix[0][0]) + (x->matrix[0][1] - x_next->matrix[0][1]) * (x->matrix[0][1] - x_next->matrix[0][1]) > EPS;
+    int grad_condition = (gradient->matrix[0][0] - gradient->matrix[0][1]) * (gradient->matrix[0][0] - gradient->matrix[0][1]) > EPS;
+    return vars_condition || grad_condition;
+}
+
+
+double NewtonOptimise2(Spline* sp1, Spline* sp2) {
+    
+    int index1 = 0;
+    int index2 = 0;
+    int i = 0;
+
+    matrix_t gradient;
+    matrix_t gess;
+    matrix_t gess_inv;
+    matrix_t d;
+    matrix_t x;
+    matrix_t x_next;
+
+    s21_create_matrix(2, 1, &gradient);
+    s21_create_matrix(2, 2, &gess);
+    s21_create_matrix(2, 2, &gess_inv);
+    s21_create_matrix(2, 1, &d);
+    s21_create_matrix(2, 1, &x);
+    s21_create_matrix(2, 1, &x_next);
+
+    //start points
+    x.matrix[0][0] = sp1->points[0][0];
+    x.matrix[0][1] = sp2->points[0][0];
+
+    //Caluclating gradient and gesse matrix
+    gradient.matrix[0][0] = FirstArgPartialDerFunction(sp1->functions[0], sp2->functions[0], x.matrix[0][0], x.matrix[0][1]);
+    gradient.matrix[0][1] = SecondArgPartialDerFunction(sp1->functions[0], sp2->functions[0], x.matrix[0][0], x.matrix[0][1]);
+    gess.matrix[0][0] = FirstArgPartialCommonDerivative(sp1->functions[0], sp2->functions[0], x.matrix[0][0], x.matrix[0][1]);
+    gess.matrix[0][1] = AllArgReversedPartialCommonDerivative(sp1->functions[0], sp2->functions[0], x.matrix[0][0], x.matrix[0][1]);
+    gess.matrix[1][0] = AllArgPartialCommonDerivative(sp1->functions[0], sp2->functions[0], x.matrix[0][0], x.matrix[0][1]);
+    gess.matrix[1][1] = SecondArgPartialCommonDerivative(sp1->functions[0], sp2->functions[0], x.matrix[0][0], x.matrix[0][1]);
+
+    //using formula x_next = x - gesse^-1 * gradient
+    s21_inverse_matrix(&gess, &gess_inv);
+    s21_mult_matrix(&gess_inv, &gradient, &d);
+    s21_sub_matrix(&x, &d, &x_next);
+
+    //iterations
+    while ( condition(&x, &x_next, &gradient) && ++i < NEWTON_ITERATIONS) {
+        x.matrix[0][0] = x_next.matrix[0][0];
+        x.matrix[0][1] = x_next.matrix[0][1];
+
+        //checking area of definition, switching functions
+        for (int j = 0; j < sp1->n - 1; j++) {
+            if (x.matrix[0][0] < sp1->points[j][0] && j == 0) {
+                x.matrix[0][0] = (sp1->points[j][0] - x.matrix[0][0]) + sp1->points[j][0]; //mirror
+                index1 = 0;
+            }
+            if (x.matrix[0][0] > sp1->points[j + 1][0] && j + 1 == sp1->n - 1) {
+                x.matrix[0][0] = sp1->points[j][0] + x.matrix[0][0] - sp1->points[j + 1][0]; //mirror
+                index1 = j;
+            }
+            if (x.matrix[0][0] >= sp1->points[j][0] && x.matrix[0][0] <= sp1->points[j + 1][0]) {
+                index1 = j;
+                break;
+            }
+        }
+        for (int j = 0; j < sp2->n - 1; j++) {
+            if (x.matrix[0][1] < sp2->points[j][0] && j == 0) {
+                x.matrix[0][1] = (sp2->points[j][0] - x.matrix[0][1]) + sp2->points[j][0]; // mirror
+                index2 = 0;
+            }
+            if (x.matrix[0][0] > sp2->points[j + 1][0] && j + 1 == sp2->n - 1) {
+                x.matrix[0][1] = sp2->points[j][0] + x.matrix[0][1] - sp2->points[j + 1][0]; //mirror
+                index2 = j;
+            }
+            if (x.matrix[0][1] >= sp2->points[j][0] && x.matrix[0][0] <= sp2->points[j + 1][0]) {
+                index1 = j;
+                break;
+            }
+        }
+        //main calculations
+
+        gradient.matrix[0][0] = FirstArgPartialDerFunction(sp1->functions[index1], sp2->functions[index2], x.matrix[0][0], x.matrix[0][1]);
+        gradient.matrix[0][1] = SecondArgPartialDerFunction(sp1->functions[index1], sp2->functions[index2], x.matrix[0][0], x.matrix[0][1]);
+        gess.matrix[0][0] = FirstArgPartialCommonDerivative(sp1->functions[index1], sp2->functions[index2], x.matrix[0][0], x.matrix[0][1]);
+        gess.matrix[0][1] = AllArgReversedPartialCommonDerivative(sp1->functions[index1], sp2->functions[index2], x.matrix[0][0], x.matrix[0][1]);
+        gess.matrix[1][0] = AllArgPartialCommonDerivative(sp1->functions[index1], sp2->functions[index2], x.matrix[0][0], x.matrix[0][1]);
+        gess.matrix[1][1] = SecondArgPartialCommonDerivative(sp1->functions[index1], sp2->functions[index2], x.matrix[0][0], x.matrix[0][1]);
+
+        s21_inverse_matrix(&gess, &gess_inv);
+        s21_mult_matrix(&gess_inv, &gradient, &d);
+        s21_sub_matrix(&x, &d, &x_next);
+
+    }
+    /*printf("MIN %lf %lf Dist: %lf", x_next.matrix[0][0], x_next.matrix[0][0], dist_sec_degree(sp1->functions[index1], sp2->functions[index2], x_next.matrix[0][0], x_next.matrix[0][1]));*/
+
+
+    return sqrt(dist_sec_degree(sp1->functions[index1], sp2->functions[index2], x_next.matrix[0][0], x_next.matrix[0][1]));
+}
+
+//not in use
+double CoordDescent_old(double* f, double fx1, double fx2, double* g, double gx1, double gx2) {
+    double x1 = (fx1 + fx2) / 2;
+    double x2 = (gx1 + gx2) / 2;
+
+    for (int i = 0; i < 1; i++) {
+        if (i % 100 == 0)
+            printf("%d", i);
+        //fix x1, find x2
+        x2 = NewtonOptimise(f, g, fx1, fx2, gx1, gx2, x1, 2);
+        /*printf("%lf %lf\n", x1, x2);*/
+        //fix x2, find x1
+        x1 = NewtonOptimise(f, g, fx1, fx2, gx1, gx2, x2, 1);
+        /*printf("%lf %lf\n", x1, x2);*/
+        if (ABS(FirstArgPartialDerFunction(f, g, x1, x2)) < EPS) { //min is found
+            break;
+        }
+    }
+    return FirstArgFunction(f, g, x1, x2) * FirstArgFunction(f, g, x1, x2);
+}
+
+//not in use
+double NewtonOptimise_old(double* f, double* g, double fx1, double fx2, double gx1, double gx2, double fixed_x, int argnum) {
     double x0, x1;
     double (*func)(double* f, double* g, double x, double c);
     double (*derivative)(double* f, double* g, double x, double c);
@@ -214,8 +336,8 @@ double NewtonOptimise(double *f, double* g, double fx1, double fx2, double gx1, 
         derivative = SecondArgPartialDerFunction;
         l = gx1;
         r = gx2;
-    }
-   
+}
+
     x1 = x0 - func(f, g, x0, fixed_x) / derivative(f, g, x0, fixed_x);
     double min = func(f, g, x0, fixed_x);
 
@@ -236,46 +358,19 @@ double NewtonOptimise(double *f, double* g, double fx1, double fx2, double gx1, 
     return x1;
 }
 
-double NewtonOptimise2(Spline* sp1, Spline* sp2) {
-    double point[2] = { sp1->points[0][0], sp2->points[0][0] };
-    double point_next[2];
-    double gradient[2] = { FirstArgPartialDerFunction(sp1->functions[0], sp2->functions[0], point[0], point[1]), SecondArgPartialDerFunction(sp1->functions[0], sp2->functions[0], point[1], point[0]) };
-    double gess[2][2];
-}
 
-
-double CoordDescent(double* f, double fx1, double fx2, double* g, double gx1, double gx2) {
-    double x1 = (fx1 + fx2) / 2;
-    double x2 = (gx1 + gx2) / 2;
-
-    for (int i = 0; i < 1; i++) {
-        if (i % 100 == 0)
-            printf("%d", i);
-        //fix x1, find x2
-        x2 = NewtonOptimise(f, g, fx1, fx2, gx1, gx2, x1, 2);
-        /*printf("%lf %lf\n", x1, x2);*/
-        //fix x2, find x1
-        x1 = NewtonOptimise(f, g, fx1, fx2, gx1, gx2, x2, 1);
-        /*printf("%lf %lf\n", x1, x2);*/
-        if (ABS(FirstArgPartialDerFunction(f, g, x1, x2)) < EPS) { //min is found
-            break;
-        }
-    }
-    return FirstArgFunction(f, g, x1, x2) * FirstArgFunction(f, g, x1, x2);
-}
-
-
-
-#define NEWTONTMET 1
+#define NEWTONTMET 0
 #if NEWTONTMET 1
 int main() {
 
     long double f_test[4] = { 3, 5, 1, 0.1 };
     long double g_test[4] = { -2, 3, 1, 2 };
     long double x_test1 = -2, x_test2 = 2, x_test3 = -2, x_test4 = 2;
-    CoordDescent(f_test, x_test1, x_test2, g_test, x_test3, x_test4);
-    printf("%lf\n", FirstArgPartialDerFunction(f_test, g_test, 0.6126, 0.6126)); // true min
-    printf("test %lf\n", FirstArgFunction(f_test, g_test, 0.724, 5.284)); // true min
+    /*CoordDescent(f_test, x_test1, x_test2, g_test, x_test3, x_test4);*/
 
+    Spline* sp1 = Constructor("Spline1.txt", 1, 2); // Add there variable of file name
+    Spline* sp2 = Constructor("Spline2.txt", 1, 2);
+
+    NewtonOptimise2(sp1, sp2);
 }
 #endif

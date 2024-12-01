@@ -4,11 +4,6 @@
 
 #define ITERATIONS 10000000
 
-long double dist_sec_degree(long double f[], long double g[], long double x1, long double x2) { //square of the distance between the points of two splines
-	long double s = (x1 - x2) * (x1 - x2) + (Fx0(x1, f) - Fx0(x2, g)) * (Fx0(x1, f) - Fx0(x2, g));
-	return s;
-}
-
 
 Answer* GradientSolve(Spline* sp1, Spline* sp2) {
 	double point[2] = {sp1->points[0][0], sp2->points[0][0]};
