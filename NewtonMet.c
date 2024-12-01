@@ -72,11 +72,11 @@ double* make_area(double x1, double x2, double x3, double x4)
 {
     double* area = calloc(2, sizeof(double));
     if ((x3 > x2) || (x4 < x1)) return area;
-    else if (x3 == x2) 
+    else if ((x3 == x2) && (x1 != x4)) 
     {
         area[0] = x3 - 0.1; area[1] = x3 + 0.1;
     }
-    else if (x4 == x1) 
+    else if ((x4 == x1) && (x2 != x3))
     {
         area[0] = x4 - 0.1; area[1] = x4 + 0.1;
     }

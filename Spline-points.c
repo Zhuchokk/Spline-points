@@ -63,6 +63,7 @@ int main()
 	}
 	case QR: {
 		method = &QrSolve;
+		break;
 	}
 	default:
 		printf("Error in indetifying method");
@@ -87,7 +88,8 @@ int main()
 					printf("The splines intersect in (%lf, %lf)\n", ans->point[k][0], ans->point[k][1]);
 				}
 			}
-			else if (ans->type == DISTANCE) {
+			else if (ans->type == DISTANCE) { 
+				if (mtype == QR) { continue; } // QR can't find distance, skip
 				if (MinDistance == -1) {
 					MinDistance = ans->distance;
 				}
