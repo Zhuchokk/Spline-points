@@ -4,6 +4,7 @@
 #include<math.h>
 
 #define ITERATIONS 10000000
+#define DIST_EPS 1
 
 double func(double a, double b, double c, double d, double x) { //cubic function without a module
 	double ans;
@@ -101,7 +102,7 @@ Answer* GradientSolve(double* f, double fx1, double fx2, double* g, double gx1, 
 
 	//printf("%lf\n %lf\n %lf\n %lf\n", x1, x2, x, distance); //not necessary for the function, but useful for tests
 	Answer* res = (Answer*)calloc(1, sizeof(Answer));
-	if (distance == 0) {
+	if (ABS(distance) < DIST_EPS && distance != -1) {
 		double** mass1 = (double**)calloc(1, sizeof(double*));
 		mass1[0] = (double*)calloc(2, sizeof(double));
 		mass1[0][0] = x;
