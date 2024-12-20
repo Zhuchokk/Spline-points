@@ -288,5 +288,10 @@ Answer* QrSolve(double* f, double fx1, double fx2, double* g, double gx1, double
         res->point = answer_points;
         return res;
     }
+    s21_remove_matrix(&support);
+    s21_remove_matrix(&Q);
+    s21_remove_matrix(&Q_trans);
+    s21_remove_matrix(&R);
+
     return res;
 }
